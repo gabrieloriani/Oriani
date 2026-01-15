@@ -1,0 +1,5 @@
+# Redirecionar www para non-www
+https://www.oriani.com.br/* https://oriani.com.br/:splat 301!
+
+# SPA routing - todas as rotas para index.html
+/*    /index.html   200
