@@ -83,7 +83,7 @@ const Home = () => {
               return (
                 <Link 
                   key={index}
-                  to={`/galeria/${service.name}`}
+                  to={`/servicos/${service.name}`}
                   className="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition group border border-gray-100"
                   data-testid={`service-card-${service.name.toLowerCase()}`}
                 >
@@ -92,6 +92,7 @@ const Home = () => {
                   </div>
                   <h3 className="text-2xl font-bold text-gray-900 mb-2">{service.name}</h3>
                   <p className="text-gray-600">{service.description}</p>
+                  <p className="text-orange-500 font-semibold mt-4 group-hover:text-orange-600">Saiba mais →</p>
                 </Link>
               );
             })}
