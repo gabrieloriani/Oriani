@@ -63,7 +63,7 @@ const Home = () => {
             <p className="text-xl text-gray-600 mb-8">
               Serviços profissionais de manutenção, instalação e reformas. Qualidade e confiança em cada trabalho.
             </p>
-            <a href="#contato" className="inline-block bg-orange-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-orange-600 transition shadow-lg" data-testid="cta-button">
+            <a href="/orcamento" className="inline-block bg-orange-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-orange-600 transition shadow-lg" data-testid="cta-button">
               Solicite seu Orçamento Grátis
             </a>
           </div>
