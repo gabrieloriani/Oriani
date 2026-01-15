@@ -28,9 +28,9 @@ const Home = () => {
   const services = [
     { name: 'Elétrica', icon: Zap, description: 'Instalações e reparos elétricos' },
     { name: 'Hidráulica', icon: Droplet, description: 'Encanamentos e consertos' },
+    { name: 'Pintura', icon: PaintBucket, description: 'Pintura residencial e comercial' },
     { name: 'Montagem de Móveis', icon: Package, description: 'Montagem profissional' },
-    { name: 'Instalações', icon: Wrench, description: 'Instalações diversas' },
-    { name: 'Pintura', icon: PaintBucket, description: 'Pintura residencial e comercial' }
+    { name: 'Instalações', icon: Wrench, description: 'Instalações diversas' }
   ];
 
   return (
