@@ -43,6 +43,8 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/galeria" element={<Gallery />} />
           <Route path="/galeria/:category" element={<Gallery />} />
+          <Route path="/servicos/:category" element={<ServicePage />} />
+          <Route path="/orcamento" element={<Orcamento />} />
           <Route path="/login" element={<Login />} />
           <Route 
             path="/admin" 
