@@ -277,9 +277,9 @@ async def get_categories():
         "categories": [
             "Elétrica",
             "Hidráulica",
+            "Pintura",
             "Montagem de Móveis",
-            "Instalações",
-            "Pintura"
+            "Instalações"
         ]
     }
 
