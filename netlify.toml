@@ -12,7 +12,7 @@
 
 [build.environment]
   # Versão do Node.js (use 18 ou 20)
-  NODE_VERSION = "18"
+  NODE_VERSION = "20"
   
   # Não gerar sourcemaps em produção (mais rápido)
   GENERATE_SOURCEMAP = "false"
