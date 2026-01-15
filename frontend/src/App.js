@@ -6,6 +6,8 @@ import Home from '@/pages/Home';
 import Gallery from '@/pages/Gallery';
 import Admin from '@/pages/Admin';
 import Login from '@/pages/Login';
+import Orcamento from '@/pages/Orcamento';
+import ServicePage from '@/pages/ServicePage';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 export const API = `${BACKEND_URL}/api`;
