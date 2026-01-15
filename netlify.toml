@@ -1,0 +1,47 @@
+# Configuração do Netlify para Oriani Multissoluções
+
+[build]
+  # Diretório base onde está o frontend
+  base = "frontend"
+  
+  # Comando para fazer o build
+  command = "yarn build"
+  
+  # Onde o Netlify deve publicar (resultado do build)
+  publish = "frontend/build"
+
+[build.environment]
+  # Versão do Node.js (use 18 ou 20)
+  NODE_VERSION = "18"
+  
+  # Não gerar sourcemaps em produção (mais rápido)
+  GENERATE_SOURCEMAP = "false"
+
+# Configuração para SPA (Single Page Application)
+# Redireciona todas as rotas para index.html
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Redirecionar www para non-www
+[[redirects]]
+  from = "https://www.oriani.com.br/*"
+  to = "https://oriani.com.br/:splat"
+  status = 301
+  force = true
+
+# Headers de segurança
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Cache para assets estáticos (imagens, JS, CSS)
+[[headers]]
+  for = "/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
