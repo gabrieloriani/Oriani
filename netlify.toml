@@ -8,7 +8,7 @@
   command = "yarn build"
   
   # Onde o Netlify deve publicar (resultado do build)
-  publish = "frontend/build"
+  publish = "build"
 
 [build.environment]
   # Versão do Node.js (use 18 ou 20)
