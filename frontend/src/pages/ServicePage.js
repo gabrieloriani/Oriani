@@ -124,26 +124,26 @@ const ServicePage = () => {
   const content = serviceContent[category] || {};
 
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [albumsRes, photosRes] = await Promise.all([
+          axios.get(`${API}/albums`),
+          axios.get(`${API}/photos`)
+        ]);
+        setAlbums(albumsRes.data);
+        
+        const categoryPhotos = photosRes.data.filter(photo => {
+          const album = albumsRes.data.find(a => a.id === photo.album_id);
+          return album && album.category === category;
+        });
+        setPhotos(categoryPhotos);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
     fetchData();
   }, [category]);
-
-  const fetchData = async () => {
-    try {
-      const [albumsRes, photosRes] = await Promise.all([
-        axios.get(`${API}/albums`),
-        axios.get(`${API}/photos`)
-      ]);
-      setAlbums(albumsRes.data);
-      
-      const categoryPhotos = photosRes.data.filter(photo => {
-        const album = albumsRes.data.find(a => a.id === photo.album_id);
-        return album && album.category === category;
-      });
-      setPhotos(categoryPhotos);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    }
-  };
 
   if (!content.title) {
     return <div>Serviço não encontrado</div>;

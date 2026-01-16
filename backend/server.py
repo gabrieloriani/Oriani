@@ -234,6 +234,7 @@ async def upload_photo(
     if file.content_type not in ["image/jpeg", "image/png", "image/webp"]:
         raise HTTPException(status_code=400, detail="Apenas imagens JPG, PNG ou WEBP são permitidas")
     
+
     # Ler o arquivo
     contents = await file.read()
     
@@ -241,6 +242,7 @@ async def upload_photo(
     if len(contents) > 5 * 1024 * 1024:
         raise HTTPException(status_code=400, detail="A imagem deve ter no máximo 5MB")
     
+
     image_base64 = base64.b64encode(contents).decode('utf-8')
     
     # Pega o tipo real do arquivo para salvar corretamente
