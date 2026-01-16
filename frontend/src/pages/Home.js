@@ -177,21 +177,21 @@ const Home = () => {
                   <Phone className="w-8 h-8" />
                 </div>
                 <h3 className="font-semibold mb-2">Telefone</h3>
-                <p className="text-orange-100">(11) 99999-9999</p>
+                <p className="text-orange-100">(19) 97138-7382</p>
               </div>
               <div className="text-center">
                 <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Mail className="w-8 h-8" />
                 </div>
                 <h3 className="font-semibold mb-2">Email</h3>
-                <p className="text-orange-100">contato@oriani.com.br</p>
+                <p className="text-orange-100">eletricista@oriani.com.br</p>
               </div>
               <div className="text-center">
                 <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
                   <MapPin className="w-8 h-8" />
                 </div>
                 <h3 className="font-semibold mb-2">Atendimento</h3>
-                <p className="text-orange-100">São Paulo - SP</p>
+                <p className="text-orange-100">Piracicaba - SP</p>
               </div>
             </div>
           </div>
