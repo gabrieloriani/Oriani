@@ -224,21 +224,33 @@ async def upload_photo(
     file: UploadFile = File(...),
     current_user: dict = Depends(get_current_user)
 ):
-    # Verify album exists
+    # 1. Verificar se o álbum existe
     album = await db.albums.find_one({"id": album_id}, {"_id": 0})
     if not album:
-        raise HTTPException(status_code=404, detail="Album not found")
+        raise HTTPException(status_code=404, detail="Álbum não encontrado")
     
-    # Read and encode image
+    # 2. SEGURANÇA: Validar tipo do arquivo (Apenas imagens)
+    if file.content_type not in ["image/jpeg", "image/png", "image/webp"]:
+        raise HTTPException(status_code=400, detail="Apenas imagens JPG, PNG ou WEBP são permitidas")
+
+    # Ler o arquivo
     contents = await file.read()
+    
+    # 3. SEGURANÇA: Limitar tamanho (Máximo 5MB)
+    if len(contents) > 5 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="A imagem deve ter no máximo 5MB")
+
     image_base64 = base64.b64encode(contents).decode('utf-8')
     
-    # Create photo
+    # Pega o tipo real do arquivo para salvar corretamente
+    mime_type = file.content_type
+    
+    # Criar foto com validação
     photo_obj = Photo(
         album_id=album_id,
         title=title,
         description=description,
-        image_data=f"data:image/jpeg;base64,{image_base64}"
+        image_data=f"data:{mime_type};base64,{image_base64}"
     )
     doc = photo_obj.model_dump()
     doc['created_at'] = doc['created_at'].isoformat()
