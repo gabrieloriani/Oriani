@@ -46,9 +46,9 @@ function App() {
           <Route path="/servicos/:category" element={<ServicePage />} />
           <Route path="/orcamento" element={<Orcamento />} />
           <Route path="/login" element={<Login />} />
-          <Route 
-            path="/admin" 
-            element={token ? <Admin /> : <Navigate to="/login" />} 
+          <Route
+            path="/admin"
+            element={token ? <Admin /> : <Navigate to="/login" />}
           />
         </Routes>
       </BrowserRouter>

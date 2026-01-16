@@ -115,36 +115,37 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
     return user
 
 # ============= AUTH ROUTES =============
-@api_router.post("/auth/register", response_model=Token)
-async def register(user_data: UserCreate):
-    # Check if user exists
-    existing_user = await db.users.find_one({"email": user_data.email})
-    if existing_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
-    
-    # Create user
-    user_obj = User(
-        email=user_data.email,
-        password_hash=get_password_hash(user_data.password)
-    )
-    doc = user_obj.model_dump()
-    doc['created_at'] = doc['created_at'].isoformat()
-    await db.users.insert_one(doc)
-    
-    # Create token
-    access_token = create_access_token(data={"sub": user_obj.email})
-    return {"access_token": access_token, "token_type": "bearer"}
-
 @api_router.post("/auth/login", response_model=Token)
 async def login(user_data: UserLogin):
-    user = await db.users.find_one({"email": user_data.email}, {"_id": 0})
-    if not user or not verify_password(user_data.password, user["password_hash"]):
+    # Verificar credenciais contra variáveis de ambiente
+    admin_email = os.environ.get('ADMIN_EMAIL')
+    admin_password = os.environ.get('ADMIN_PASSWORD')
+    
+    if not admin_email or not admin_password:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Admin credentials not configured"
+        )
+    
+    # Validar email e senha
+    if user_data.email != admin_email or user_data.password != admin_password:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password"
         )
     
-    access_token = create_access_token(data={"sub": user["email"]})
+    # Criar ou atualizar usuário admin no banco
+    existing_user = await db.users.find_one({"email": admin_email}, {"_id": 0})
+    if not existing_user:
+        user_obj = User(
+            email=admin_email,
+            password_hash=get_password_hash(admin_password)
+        )
+        doc = user_obj.model_dump()
+        doc['created_at'] = doc['created_at'].isoformat()
+        await db.users.insert_one(doc)
+    
+    access_token = create_access_token(data={"sub": admin_email})
     return {"access_token": access_token, "token_type": "bearer"}
 
 # ============= ALBUM ROUTES =============
@@ -232,6 +233,7 @@ async def upload_photo(
     # 2. SEGURANÇA: Validar tipo do arquivo (Apenas imagens)
     if file.content_type not in ["image/jpeg", "image/png", "image/webp"]:
         raise HTTPException(status_code=400, detail="Apenas imagens JPG, PNG ou WEBP são permitidas")
+    
 
     # Ler o arquivo
     contents = await file.read()
@@ -239,6 +241,7 @@ async def upload_photo(
     # 3. SEGURANÇA: Limitar tamanho (Máximo 5MB)
     if len(contents) > 5 * 1024 * 1024:
         raise HTTPException(status_code=400, detail="A imagem deve ter no máximo 5MB")
+    
 
     image_base64 = base64.b64encode(contents).decode('utf-8')
     
