@@ -7,7 +7,6 @@ import { AlertCircle } from 'lucide-react';
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isRegister, setIsRegister] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -19,8 +18,7 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const endpoint = isRegister ? '/auth/register' : '/auth/login';
-      const response = await axios.post(`${API}${endpoint}`, { email, password });
+      const response = await axios.post(`${API}/auth/login`, { email, password });
       login(response.data.access_token);
       navigate('/admin');
     } catch (err) {
@@ -37,9 +35,7 @@ const Login = () => {
           <Link to="/">
             <img src="/assets/logo.png" alt="Oriani" className="h-16 mx-auto mb-4" />
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900">
-            {isRegister ? 'Criar Conta Admin' : 'Área Administrativa'}
-          </h1>
+          <h1 className="text-3xl font-bold text-gray-900">Área Administrativa</h1>
         </div>
 
         <div className="bg-white rounded-xl shadow-lg p-8">
@@ -87,18 +83,9 @@ const Login = () => {
               className="w-full bg-orange-500 text-white py-3 rounded-lg font-semibold hover:bg-orange-600 transition disabled:opacity-50"
               data-testid="submit-button"
             >
-              {loading ? 'Carregando...' : (isRegister ? 'Criar Conta' : 'Entrar')}
+              {loading ? 'Carregando...' : 'Entrar'}
             </button>
           </form>
-
-          <div className="mt-6 text-center">
-            <button
-              onClick={() => { setIsRegister(!isRegister); setError(''); }}
-              className="text-orange-500 hover:text-orange-600 font-semibold"
-            >
-              {isRegister ? 'Já tem conta? Fazer login' : 'Primeira vez? Criar conta admin'}
-            </button>
-          </div>
         </div>
 
         <div className="text-center mt-6">
