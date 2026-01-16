@@ -1,0 +1,95 @@
+/* global use, db */
+// MongoDB Playground para Oriani Multissoluções
+
+// 1. Selecione o banco de dados correto.
+// Verifique o nome no seu arquivo .env (chave DB_NAME)
+use('oriani_db'); 
+
+// 2. (Opcional) Limpar coleções antigas para começar do zero
+// Cuidado: Isso apaga tudo! Use apenas em desenvolvimento.
+db.getCollection('albums').drop();
+db.getCollection('photos').drop();
+
+// Definição de IDs fixos para facilitar o relacionamento neste script de teste
+const idAlbumEletrica = 'album-eletrica-01';
+const idAlbumPintura = 'album-pintura-01';
+
+console.log('Limpando banco e inserindo dados de teste...');
+
+// 3. Inserir Álbuns (Baseado no modelo do server.py)
+db.getCollection('albums').insertMany([
+  { 
+    'id': idAlbumEletrica, // Importante: O backend busca por este campo 'id', não pelo '_id' do Mongo
+    'name': 'Instalação Apartamento Jardins', 
+    'description': 'Troca de fiação e instalação de lustres', 
+    'category': 'Elétrica', 
+    'created_at': new Date() 
+  },
+  { 
+    'id': idAlbumPintura, 
+    'name': 'Pintura Fachada Comercial', 
+    'description': 'Textura projetada e pintura externa', 
+    'category': 'Pintura', 
+    'created_at': new Date() 
+  },
+  { 
+    'id': 'album-moveis-01', 
+    'name': 'Montagem Guarda-Roupa Casal', 
+    'description': 'Montagem de móveis planejados', 
+    'category': 'Montagem de Móveis', 
+    'created_at': new Date() 
+  }
+]);
+
+// 4. Inserir Fotos vinculadas aos Álbuns
+// Nota: 'image_data' aqui é um placeholder curto. No real seria uma string Base64 gigante.
+db.getCollection('photos').insertMany([
+  {
+    'id': 'foto-01',
+    'album_id': idAlbumEletrica, // Vínculo com o álbum de elétrica
+    'title': 'Quadro de distribuição novo',
+    'description': 'Organização dos disjuntores',
+    'image_data': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 
+    'created_at': new Date()
+  },
+  {
+    'id': 'foto-02',
+    'album_id': idAlbumEletrica,
+    'title': 'Lustre Pendente',
+    'description': 'Instalação na sala de jantar',
+    'image_data': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mnk5+dQAwAEHgHB44w5sgAAAABJRU5ErkJggg==',
+    'created_at': new Date()
+  },
+  {
+    'id': 'foto-03',
+    'album_id': idAlbumPintura, // Vínculo com o álbum de pintura
+    'title': 'Antes da pintura',
+    'description': 'Parede com imperfeições',
+    'image_data': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==',
+    'created_at': new Date()
+  }
+]);
+
+// 5. Consulta de Teste: "Trazer todos os álbuns e contar quantas fotos cada um tem"
+// Isso usa uma Agregação (Aggregation) para juntar as duas coleções
+const relatorio = db.getCollection('albums').aggregate([
+  {
+    $lookup: {
+      from: 'photos',         // Coleção para juntar
+      localField: 'id',       // Campo no Album (nossa string de ID)
+      foreignField: 'album_id', // Campo na Photo
+      as: 'album_photos'      // Nome do novo array com as fotos
+    }
+  },
+  {
+    $project: {
+      _id: 0,
+      name: 1,
+      category: 1,
+      total_fotos: { $size: '$album_photos' } // Conta quantas fotos achou
+    }
+  }
+]).toArray();
+
+console.log('Relatório de Álbuns criado:');
+console.log(relatorio);
