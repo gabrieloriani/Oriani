@@ -141,11 +141,14 @@ backend:
     file: "server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "Criar, editar e deletar álbuns via formulários POST no admin."
+      - working: true
+        agent: "testing"
+        comment: "✅ PASS: Album CRUD operations work perfectly. Create, edit, delete all functional via HTML forms. Data persistence confirmed."
 
   - task: "Upload de fotos via formulários HTML"
     implemented: true
