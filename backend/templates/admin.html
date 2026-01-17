@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+
+{% block title %}Painel Administrativo{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<header class="bg-white shadow-sm sticky top-0 z-40">
+    <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+            <img src="/static/assets/logo.png" alt="Oriani" class="h-10">
+            <h1 class="text-xl font-bold text-gray-900 hidden sm:block">Painel Administrativo</h1>
+        </div>
+        <div class="flex items-center space-x-3">
+            <a href="/" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 transition hidden sm:inline-flex items-center gap-2">
+                <i data-lucide="external-link" class="w-4 h-4"></i>
+                Ver Site
+            </a>
+            <a href="/logout" class="flex items-center space-x-2 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition">
+                <i data-lucide="log-out" class="w-4 h-4"></i>
+                <span class="hidden sm:inline">Sair</span>
+            </a>
+        </div>
+    </div>
+</header>
+
+<div class="min-h-screen bg-gray-100 py-8">
+    <div class="container mx-auto px-4">
+        <!-- Action Buttons -->
+        <div class="flex flex-wrap gap-4 mb-8">
+            <button onclick="openAlbumModal()" class="flex items-center space-x-2 btn-primary text-white px-6 py-3 rounded-xl font-semibold shadow-lg">
+                <i data-lucide="folder-plus" class="w-5 h-5"></i>
+                <span>Novo Álbum</span>
+            </button>
+            <button onclick="openPhotoModal()" class="flex items-center space-x-2 bg-blue-500 text-white px-6 py-3 rounded-xl hover:bg-blue-600 transition font-semibold shadow-lg">
+                <i data-lucide="image-plus" class="w-5 h-5"></i>
+                <span>Upload de Foto</span>
+            </button>
+        </div>
+        
+        <!-- Albums Grid -->
+        <div class="space-y-8">
+            {% if albums %}
+                {% for album in albums %}
+                {% set album_photos = photos | selectattr('album_id', 'equalto', album.id) | list %}
+                <div class="bg-white rounded-2xl shadow-lg p-6 animate-fade-in">
+                    <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-900">{{ album.name }}</h2>
+                            <p class="text-gray-600 mt-1">{{ album.description }}</p>
+                            <span class="inline-block bg-orange-100 text-orange-700 text-sm px-4 py-1 rounded-full mt-3 font-medium">
+                                {{ album.category }}
+                            </span>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button onclick="openPhotoModal('{{ album.id }}')" class="p-2.5 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition" title="Adicionar foto">
+                                <i data-lucide="plus" class="w-5 h-5"></i>
+                            </button>
+                            <button onclick="openEditAlbumModal('{{ album.id }}', '{{ album.name }}', '{{ album.description }}', '{{ album.category }}')" class="p-2.5 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition" title="Editar álbum">
+                                <i data-lucide="edit-2" class="w-5 h-5"></i>
+                            </button>
+                            <form method="POST" action="/admin/album/delete/{{ album.id }}" onsubmit="return confirm('Tem certeza? Todas as fotos deste álbum serão excluídas.')" class="inline">
+                                <button type="submit" class="p-2.5 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition" title="Excluir álbum">
+                                    <i data-lucide="trash-2" class="w-5 h-5"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <!-- Photos in Album -->
+                    {% if album_photos %}
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                        {% for photo in album_photos %}
+                        <div class="relative group">
+                            <img src="{{ photo.image_data }}" alt="{{ photo.title }}" class="w-full aspect-square object-cover rounded-xl shadow">
+                            <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition rounded-xl flex items-center justify-center">
+                                <form method="POST" action="/admin/photo/delete/{{ photo.id }}" onsubmit="return confirm('Excluir esta foto?')" class="opacity-0 group-hover:opacity-100 transition">
+                                    <button type="submit" class="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition shadow-lg">
+                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                    </button>
+                                </form>
+                            </div>
+                            <p class="text-xs text-gray-600 mt-2 truncate font-medium">{{ photo.title }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-12 border-2 border-dashed border-gray-300 rounded-xl bg-gray-50">
+                        <i data-lucide="image" class="w-12 h-12 text-gray-300 mx-auto mb-3"></i>
+                        <p class="text-gray-500">Nenhuma foto neste álbum</p>
+                        <button onclick="openPhotoModal('{{ album.id }}')" class="mt-3 text-orange-500 hover:text-orange-600 font-semibold inline-flex items-center gap-1">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                            Adicionar foto
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            {% else %}
+            <div class="text-center py-16 bg-white rounded-2xl shadow-lg">
+                <i data-lucide="folder" class="w-20 h-20 text-gray-300 mx-auto mb-4"></i>
+                <p class="text-gray-500 text-xl mb-6">Nenhum álbum criado ainda</p>
+                <button onclick="openAlbumModal()" class="btn-primary text-white px-8 py-3 rounded-xl font-semibold shadow-lg inline-flex items-center gap-2">
+                    <i data-lucide="folder-plus" class="w-5 h-5"></i>
+                    Criar Primeiro Álbum
+                </button>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Album Modal -->
+<div id="album-modal" class="modal-overlay" onclick="closeAlbumModal()">
+    <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4 modal-content" onclick="event.stopPropagation()">
+        <h2 id="album-modal-title" class="text-2xl font-bold mb-6">Novo Álbum</h2>
+        <form id="album-form" method="POST">
+            <div class="space-y-5">
+                <div>
+                    <label class="block text-gray-700 font-semibold mb-2">Nome</label>
+                    <input type="text" name="name" id="album-name" required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-xl input-focus focus:outline-none focus:ring-2 focus:ring-orange-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-semibold mb-2">Descrição</label>
+                    <textarea name="description" id="album-description" rows="3"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-xl input-focus focus:outline-none focus:ring-2 focus:ring-orange-500"></textarea>
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-semibold mb-2">Categoria</label>
+                    <select name="category" id="album-category" required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-xl input-focus focus:outline-none focus:ring-2 focus:ring-orange-500">
+                        <option value="">Selecione uma categoria</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat }}">{{ cat }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="flex space-x-4 mt-8">
+                <button type="submit" class="flex-1 btn-primary text-white py-3 rounded-xl font-semibold">Salvar</button>
+                <button type="button" onclick="closeAlbumModal()" class="flex-1 bg-gray-200 text-gray-700 py-3 rounded-xl hover:bg-gray-300 transition font-semibold">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Photo Upload Modal -->
+<div id="photo-modal" class="modal-overlay" onclick="closePhotoModal()">
+    <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4 modal-content" onclick="event.stopPropagation()">
+        <h2 class="text-2xl font-bold mb-6">Upload de Foto</h2>
+        <form method="POST" action="/admin/photo/upload" enctype="multipart/form-data">
+            <div class="space-y-5">
+                <div>
+                    <label class="block text-gray-700 font-semibold mb-2">Álbum</label>
+                    <select name="album_id" id="photo-album" required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-xl input-focus focus:outline-none focus:ring-2 focus:ring-orange-500">
+                        <option value="">Selecione um álbum</option>
+                        {% for album in albums %}
+                        <option value="{{ album.id }}">{{ album.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-semibold mb-2">Título</label>
+                    <input type="text" name="title" required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-xl input-focus focus:outline-none focus:ring-2 focus:ring-orange-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-semibold mb-2">Descrição (opcional)</label>
+                    <input type="text" name="description"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-xl input-focus focus:outline-none focus:ring-2 focus:ring-orange-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-semibold mb-2">Imagem</label>
+                    <input type="file" name="file" accept="image/jpeg,image/png,image/webp" required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-xl input-focus focus:outline-none">
+                    <p class="text-sm text-gray-500 mt-1">JPG, PNG ou WEBP. Máximo 5MB.</p>
+                </div>
+            </div>
+            <div class="flex space-x-4 mt-8">
+                <button type="submit" class="flex-1 btn-primary text-white py-3 rounded-xl font-semibold">Upload</button>
+                <button type="button" onclick="closePhotoModal()" class="flex-1 bg-gray-200 text-gray-700 py-3 rounded-xl hover:bg-gray-300 transition font-semibold">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Album Modal
+    function openAlbumModal() {
+        document.getElementById('album-modal-title').textContent = 'Novo Álbum';
+        document.getElementById('album-form').action = '/admin/album/create';
+        document.getElementById('album-name').value = '';
+        document.getElementById('album-description').value = '';
+        document.getElementById('album-category').value = '';
+        document.getElementById('album-modal').classList.add('active');
+    }
+    
+    function openEditAlbumModal(id, name, description, category) {
+        document.getElementById('album-modal-title').textContent = 'Editar Álbum';
+        document.getElementById('album-form').action = '/admin/album/edit/' + id;
+        document.getElementById('album-name').value = name;
+        document.getElementById('album-description').value = description;
+        document.getElementById('album-category').value = category;
+        document.getElementById('album-modal').classList.add('active');
+    }
+    
+    function closeAlbumModal() {
+        document.getElementById('album-modal').classList.remove('active');
+    }
+    
+    // Photo Modal
+    function openPhotoModal(albumId = '') {
+        document.getElementById('photo-album').value = albumId;
+        document.getElementById('photo-modal').classList.add('active');
+    }
+    
+    function closePhotoModal() {
+        document.getElementById('photo-modal').classList.remove('active');
+    }
+    
+    // Close on escape
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeAlbumModal();
+            closePhotoModal();
+        }
+    });
+</script>
+{% endblock %}

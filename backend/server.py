@@ -1,5 +1,8 @@
-from fastapi import FastAPI, APIRouter, Depends, HTTPException, status, File, UploadFile, Form
+from fastapi import FastAPI, APIRouter, Depends, HTTPException, status, File, UploadFile, Form, Request, Response
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse, RedirectResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -20,18 +23,24 @@ load_dotenv(ROOT_DIR / '.env')
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
+db = client[os.environ.get('DB_NAME', 'oriani_database')]
 
 # Security
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-security = HTTPBearer()
-JWT_SECRET = os.environ['JWT_SECRET_KEY']
-JWT_ALGORITHM = os.environ['JWT_ALGORITHM']
-ACCESS_TOKEN_EXPIRE = int(os.environ['ACCESS_TOKEN_EXPIRE_MINUTES'])
+security = HTTPBearer(auto_error=False)
+JWT_SECRET = os.environ.get('JWT_SECRET_KEY', 'default_secret_key_change_me')
+JWT_ALGORITHM = os.environ.get('JWT_ALGORITHM', 'HS256')
+ACCESS_TOKEN_EXPIRE = int(os.environ.get('ACCESS_TOKEN_EXPIRE_MINUTES', 1440))
 
 # Create the main app
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
+
+# Mount static files
+app.mount("/static", StaticFiles(directory=ROOT_DIR / "static"), name="static")
+
+# Templates
+templates = Jinja2Templates(directory=ROOT_DIR / "templates")
 
 # ============= MODELS =============
 class User(BaseModel):
@@ -80,6 +89,16 @@ class PhotoCreate(BaseModel):
     title: str
     description: Optional[str] = ""
 
+# ============= CATEGORIES =============
+CATEGORIES = [
+    "Elétrica",
+    "Hidráulica",
+    "Pintura",
+    "Montagem de Móveis",
+    "Instalações",
+    "Alvenaria e Drywall"
+]
+
 # ============= AUTH FUNCTIONS =============
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
@@ -94,60 +113,81 @@ def create_access_token(data: dict):
     encoded_jwt = jwt.encode(to_encode, JWT_SECRET, algorithm=JWT_ALGORITHM)
     return encoded_jwt
 
-async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
+def verify_token(token: str):
     try:
-        token = credentials.credentials
         payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
         email: str = payload.get("sub")
         if email is None:
-            raise credentials_exception
+            return None
+        return email
     except JWTError:
-        raise credentials_exception
-    
+        return None
+
+async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    if not credentials:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    email = verify_token(credentials.credentials)
+    if email is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     user = await db.users.find_one({"email": email}, {"_id": 0})
     if user is None:
-        raise credentials_exception
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     return user
 
-# ============= AUTH ROUTES =============
-@api_router.post("/auth/register", response_model=Token)
-async def register(user_data: UserCreate):
-    # Check if user exists
-    existing_user = await db.users.find_one({"email": user_data.email})
-    if existing_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
-    
-    # Create user
-    user_obj = User(
-        email=user_data.email,
-        password_hash=get_password_hash(user_data.password)
-    )
-    doc = user_obj.model_dump()
-    doc['created_at'] = doc['created_at'].isoformat()
-    await db.users.insert_one(doc)
-    
-    # Create token
-    access_token = create_access_token(data={"sub": user_obj.email})
-    return {"access_token": access_token, "token_type": "bearer"}
+async def get_current_user_from_cookie(request: Request):
+    token = request.cookies.get("access_token")
+    if not token:
+        return None
+    email = verify_token(token)
+    if email is None:
+        return None
+    user = await db.users.find_one({"email": email}, {"_id": 0})
+    return user
 
+# ============= API AUTH ROUTES =============
 @api_router.post("/auth/login", response_model=Token)
-async def login(user_data: UserLogin):
-    user = await db.users.find_one({"email": user_data.email}, {"_id": 0})
-    if not user or not verify_password(user_data.password, user["password_hash"]):
+async def api_login(user_data: UserLogin):
+    admin_email = os.environ.get('ADMIN_EMAIL')
+    admin_password = os.environ.get('ADMIN_PASSWORD')
+    
+    if not admin_email or not admin_password:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Admin credentials not configured"
+        )
+    
+    if user_data.email != admin_email or user_data.password != admin_password:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password"
         )
     
-    access_token = create_access_token(data={"sub": user["email"]})
+    existing_user = await db.users.find_one({"email": admin_email}, {"_id": 0})
+    if not existing_user:
+        user_obj = User(
+            email=admin_email,
+            password_hash=get_password_hash(admin_password)
+        )
+        doc = user_obj.model_dump()
+        doc['created_at'] = doc['created_at'].isoformat()
+        await db.users.insert_one(doc)
+    
+    access_token = create_access_token(data={"sub": admin_email})
     return {"access_token": access_token, "token_type": "bearer"}
 
-# ============= ALBUM ROUTES =============
+# ============= API ALBUM ROUTES =============
 @api_router.get("/albums", response_model=List[Album])
 async def get_albums():
     albums = await db.albums.find({}, {"_id": 0}).to_list(1000)
@@ -192,12 +232,10 @@ async def delete_album(album_id: str, current_user: dict = Depends(get_current_u
     result = await db.albums.delete_one({"id": album_id})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Album not found")
-    
-    # Delete all photos in this album
     await db.photos.delete_many({"album_id": album_id})
     return {"message": "Album deleted successfully"}
 
-# ============= PHOTO ROUTES =============
+# ============= API PHOTO ROUTES =============
 @api_router.get("/photos", response_model=List[Photo])
 async def get_photos(album_id: Optional[str] = None):
     query = {"album_id": album_id} if album_id else {}
@@ -224,28 +262,17 @@ async def upload_photo(
     file: UploadFile = File(...),
     current_user: dict = Depends(get_current_user)
 ):
-    # 1. Verificar se o álbum existe
+    # Verify album exists
     album = await db.albums.find_one({"id": album_id}, {"_id": 0})
     if not album:
-        raise HTTPException(status_code=404, detail="Álbum não encontrado")
+        raise HTTPException(status_code=404, detail="Album not found")
     
-    # 2. SEGURANÇA: Validar tipo do arquivo (Apenas imagens)
-    if file.content_type not in ["image/jpeg", "image/png", "image/webp"]:
-        raise HTTPException(status_code=400, detail="Apenas imagens JPG, PNG ou WEBP são permitidas")
-
-    # Ler o arquivo
+    # Read and encode image
     contents = await file.read()
-    
-    # 3. SEGURANÇA: Limitar tamanho (Máximo 5MB)
-    if len(contents) > 5 * 1024 * 1024:
-        raise HTTPException(status_code=400, detail="A imagem deve ter no máximo 5MB")
-
     image_base64 = base64.b64encode(contents).decode('utf-8')
-    
-    # Pega o tipo real do arquivo para salvar corretamente
     mime_type = file.content_type
     
-    # Criar foto com validação
+    # Create photo
     photo_obj = Photo(
         album_id=album_id,
         title=title,
@@ -278,25 +305,223 @@ async def delete_photo(photo_id: str, current_user: dict = Depends(get_current_u
         raise HTTPException(status_code=404, detail="Photo not found")
     return {"message": "Photo deleted successfully"}
 
-# ============= PUBLIC ROUTES =============
+# ============= API PUBLIC ROUTES =============
 @api_router.get("/")
-async def root():
+async def api_root():
     return {"message": "Oriani Multissoluções API"}
 
 @api_router.get("/categories")
 async def get_categories():
-    return {
-        "categories": [
-            "Elétrica",
-            "Hidráulica",
-            "Pintura",
-            "Montagem de Móveis",
-            "Instalações"
-        ]
-    }
+    return {"categories": CATEGORIES}
 
-# Include router
+# Include API router
 app.include_router(api_router)
+
+# ============= PAGE ROUTES (HTML) =============
+@app.get("/", response_class=HTMLResponse)
+async def home_page(request: Request):
+    albums = await db.albums.find({}, {"_id": 0}).to_list(1000)
+    photos = await db.photos.find({}, {"_id": 0}).to_list(1000)
+    return templates.TemplateResponse("home.html", {
+        "request": request,
+        "albums": albums,
+        "photos": photos[:8],
+        "categories": CATEGORIES
+    })
+
+@app.get("/galeria", response_class=HTMLResponse)
+@app.get("/galeria/{category}", response_class=HTMLResponse)
+async def gallery_page(request: Request, category: str = None):
+    albums = await db.albums.find({}, {"_id": 0}).to_list(1000)
+    photos = await db.photos.find({}, {"_id": 0}).to_list(1000)
+    
+    if category:
+        album_ids = [a['id'] for a in albums if a.get('category') == category]
+        filtered_photos = [p for p in photos if p.get('album_id') in album_ids]
+    else:
+        filtered_photos = photos
+    
+    return templates.TemplateResponse("gallery.html", {
+        "request": request,
+        "albums": albums,
+        "photos": filtered_photos,
+        "categories": CATEGORIES,
+        "current_category": category
+    })
+
+@app.get("/servicos/{service_name}", response_class=HTMLResponse)
+async def service_page(request: Request, service_name: str):
+    albums = await db.albums.find({"category": service_name}, {"_id": 0}).to_list(100)
+    album_ids = [a['id'] for a in albums]
+    photos = await db.photos.find({"album_id": {"$in": album_ids}}, {"_id": 0}).to_list(100)
+    
+    return templates.TemplateResponse("service.html", {
+        "request": request,
+        "service_name": service_name,
+        "albums": albums,
+        "photos": photos,
+        "categories": CATEGORIES
+    })
+
+@app.get("/orcamento", response_class=HTMLResponse)
+async def orcamento_page(request: Request):
+    return templates.TemplateResponse("orcamento.html", {
+        "request": request,
+        "categories": CATEGORIES
+    })
+
+@app.get("/login", response_class=HTMLResponse)
+async def login_page(request: Request):
+    user = await get_current_user_from_cookie(request)
+    if user:
+        return RedirectResponse(url="/admin", status_code=302)
+    return templates.TemplateResponse("login.html", {"request": request})
+
+@app.post("/login")
+async def login_submit(request: Request, response: Response):
+    form_data = await request.form()
+    email = form_data.get("email")
+    password = form_data.get("password")
+    
+    admin_email = os.environ.get('ADMIN_EMAIL')
+    admin_password = os.environ.get('ADMIN_PASSWORD')
+    
+    if email != admin_email or password != admin_password:
+        return templates.TemplateResponse("login.html", {
+            "request": request,
+            "error": "Email ou senha incorretos"
+        })
+    
+    existing_user = await db.users.find_one({"email": admin_email}, {"_id": 0})
+    if not existing_user:
+        user_obj = User(
+            email=admin_email,
+            password_hash=get_password_hash(admin_password)
+        )
+        doc = user_obj.model_dump()
+        doc['created_at'] = doc['created_at'].isoformat()
+        await db.users.insert_one(doc)
+    
+    access_token = create_access_token(data={"sub": admin_email})
+    
+    response = RedirectResponse(url="/admin", status_code=302)
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        max_age=ACCESS_TOKEN_EXPIRE * 60,
+        samesite="lax"
+    )
+    return response
+
+@app.get("/logout")
+async def logout(response: Response):
+    response = RedirectResponse(url="/", status_code=302)
+    response.delete_cookie("access_token")
+    return response
+
+@app.get("/admin", response_class=HTMLResponse)
+async def admin_page(request: Request):
+    user = await get_current_user_from_cookie(request)
+    if not user:
+        return RedirectResponse(url="/login", status_code=302)
+    
+    albums = await db.albums.find({}, {"_id": 0}).to_list(1000)
+    photos = await db.photos.find({}, {"_id": 0}).to_list(1000)
+    
+    return templates.TemplateResponse("admin.html", {
+        "request": request,
+        "user": user,
+        "albums": albums,
+        "photos": photos,
+        "categories": CATEGORIES
+    })
+
+# Admin form handlers
+@app.post("/admin/album/create")
+async def admin_create_album(request: Request):
+    user = await get_current_user_from_cookie(request)
+    if not user:
+        return RedirectResponse(url="/login", status_code=302)
+    
+    form_data = await request.form()
+    album_obj = Album(
+        name=form_data.get("name"),
+        description=form_data.get("description"),
+        category=form_data.get("category")
+    )
+    doc = album_obj.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    await db.albums.insert_one(doc)
+    
+    return RedirectResponse(url="/admin", status_code=302)
+
+@app.post("/admin/album/edit/{album_id}")
+async def admin_edit_album(request: Request, album_id: str):
+    user = await get_current_user_from_cookie(request)
+    if not user:
+        return RedirectResponse(url="/login", status_code=302)
+    
+    form_data = await request.form()
+    update_data = {
+        "name": form_data.get("name"),
+        "description": form_data.get("description"),
+        "category": form_data.get("category")
+    }
+    await db.albums.update_one({"id": album_id}, {"$set": update_data})
+    
+    return RedirectResponse(url="/admin", status_code=302)
+
+@app.post("/admin/album/delete/{album_id}")
+async def admin_delete_album(request: Request, album_id: str):
+    user = await get_current_user_from_cookie(request)
+    if not user:
+        return RedirectResponse(url="/login", status_code=302)
+    
+    await db.albums.delete_one({"id": album_id})
+    await db.photos.delete_many({"album_id": album_id})
+    
+    return RedirectResponse(url="/admin", status_code=302)
+
+@app.post("/admin/photo/upload")
+async def admin_upload_photo(request: Request):
+    user = await get_current_user_from_cookie(request)
+    if not user:
+        return RedirectResponse(url="/login", status_code=302)
+    
+    form_data = await request.form()
+    album_id = form_data.get("album_id")
+    title = form_data.get("title")
+    description = form_data.get("description", "")
+    file = form_data.get("file")
+    
+    if file and file.filename:
+        contents = await file.read()
+        if len(contents) <= 5 * 1024 * 1024:
+            image_base64 = base64.b64encode(contents).decode('utf-8')
+            mime_type = file.content_type or "image/jpeg"
+            
+            photo_obj = Photo(
+                album_id=album_id,
+                title=title,
+                description=description,
+                image_data=f"data:{mime_type};base64,{image_base64}"
+            )
+            doc = photo_obj.model_dump()
+            doc['created_at'] = doc['created_at'].isoformat()
+            await db.photos.insert_one(doc)
+    
+    return RedirectResponse(url="/admin", status_code=302)
+
+@app.post("/admin/photo/delete/{photo_id}")
+async def admin_delete_photo(request: Request, photo_id: str):
+    user = await get_current_user_from_cookie(request)
+    if not user:
+        return RedirectResponse(url="/login", status_code=302)
+    
+    await db.photos.delete_one({"id": photo_id})
+    
+    return RedirectResponse(url="/admin", status_code=302)
 
 app.add_middleware(
     CORSMiddleware,

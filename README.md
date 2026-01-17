@@ -1,222 +1,150 @@
-# 🔧 Oriani Multissoluções - Site Profissional
+# 🔧 Oriani Multissoluções - Site Profissional (Python Full-Stack)
 
 Site profissional para serviços de Marido de Aluguel com sistema completo de gerenciamento de portfólio.
 
-## 🚀 Funcionalidades
+## 🚀 Arquitetura
 
-### Website Público
-- **Homepage Profissional** com design moderno e atrativo
-- **Seções Otimizadas para SEO:**
-  - Hero section com call-to-action
-  - Serviços organizados por categoria (Elétrica, Hidráulica, Montagem de Móveis, Instalações, Pintura)
-  - Galeria de trabalhos realizados
-  - Seção sobre a empresa
-  - Formulário de contato
-  - Footer completo
+### **Python Full-Stack (FastAPI + Jinja2)**
+- ✅ **Backend e Frontend unificados** - Um único servidor Python serve todo o site
+- ✅ **Sem APIs separadas** - Comunicação direta entre templates e banco de dados
+- ✅ **Simples de hospedar** - Apenas um serviço para configurar no Render
+- ✅ **Sem problemas de CORS** - Tudo no mesmo domínio
 
-- **Galeria de Fotos:**
-  - Visualização por categoria
-  - Lightbox para visualizar fotos em tela cheia
-  - Navegação entre fotos
-  - Design responsivo
+## 🎨 Design Aprimorado
 
-### Painel Administrativo
-- **Autenticação Segura:** Login com email e senha (JWT)
-- **Gerenciamento de Álbuns:**
-  - Criar, editar e excluir álbuns
-  - Organizar por categorias
-  - Adicionar descrições
+### Novidades Visuais
+- **Gradientes animados** no hero e seções de destaque
+- **Efeitos hover** em cards com animações suaves
+- **Transições CSS** profissionais em todo o site
+- **Fundos decorativos** com blur e formas geométricas
+- **Lightbox moderno** para visualização de fotos
+- **Design responsivo** otimizado para todos os dispositivos
 
-- **Gerenciamento de Fotos:**
-  - Upload de imagens
-  - Adicionar títulos e descrições
-  - Organizar por álbum
-  - Exclusão de fotos
-  - Armazenamento em base64 no MongoDB
+### Cores da Marca
+- Laranja (#FF8C42) - Cor primária
+- Azul Navy (#1E3A5F) - Cor secundária
 
-## 🎨 Design
-- **Cores da Marca:**
-  - Laranja (#FF8C42) - Cor primária
-  - Azul (#1E3A5F) - Cor secundária
-- **Logo:** Integrada no site
-- **UI Framework:** Tailwind CSS + shadcn/ui
-- **Responsivo:** Design otimizado para mobile, tablet e desktop
+## 📋 Categorias de Serviço
 
-## 🔍 Otimização SEO
+1. **Elétrica** - Instalações e reparos elétricos
+2. **Hidráulica** - Encanamentos e consertos
+3. **Pintura** - Pintura residencial e comercial
+4. **Montagem de Móveis** - Montagem profissional
+5. **Instalações** - Instalações diversas
+6. **Alvenaria e Drywall** - 🆕 Paredes, divisórias e reparos
 
-### Meta Tags Completas
-- Títulos e descrições otimizados
-- Open Graph para redes sociais
-- Twitter Cards
-- Keywords relevantes
+## 🔐 Área Administrativa
 
-### Structured Data (Schema.org)
-- LocalBusiness markup
-- Informações de contato
-- Avaliações
-- Horário de funcionamento
+### Acesso
+- **URL**: `/login`
+- **Email**: Configurado em `ADMIN_EMAIL` (backend/.env)
+- **Senha**: Configurado em `ADMIN_PASSWORD` (backend/.env)
 
-### Arquivos SEO
-- ✅ `robots.txt` - Configurado para permitir indexação
-- ✅ `sitemap.xml` - Mapa do site completo
-- ✅ Meta tags otimizadas
-- ✅ Alt texts em todas as imagens
+### Funcionalidades
+- ✅ Criar, editar e excluir álbuns
+- ✅ Upload de fotos (JPG, PNG, WEBP até 5MB)
+- ✅ Organizar por categorias
+- ✅ Autenticação via cookies HTTP-only
 
-## 🛠 Stack Tecnológica
+## 📁 Estrutura do Projeto
+
+```
+/app/backend/
+├── server.py              # FastAPI + rotas + Jinja2
+├── .env                   # Variáveis de ambiente
+├── requirements.txt       # Dependências Python
+├── templates/             # Templates HTML (Jinja2)
+│   ├── base.html          # Template base
+│   ├── home.html          # Homepage
+│   ├── gallery.html       # Galeria de fotos
+│   ├── service.html       # Página de serviço
+│   ├── orcamento.html     # Solicitação de orçamento
+│   ├── login.html         # Login admin
+│   └── admin.html         # Painel administrativo
+└── static/
+    ├── css/
+    │   └── styles.css     # Estilos customizados + animações
+    └── assets/
+        └── logo.png       # Logo Oriani
+```
+
+## 🌐 URLs do Site
+
+### Páginas Públicas
+- `/` - Homepage
+- `/galeria` - Galeria completa
+- `/galeria/{categoria}` - Galeria filtrada
+- `/servicos/{nome}` - Página de serviço
+- `/orcamento` - Solicitar orçamento
+
+### Área Administrativa
+- `/login` - Login
+- `/admin` - Painel de gerenciamento
+- `/logout` - Sair
+
+### APIs (mantidas para compatibilidade)
+- `GET /api/albums` - Lista álbuns
+- `GET /api/photos` - Lista fotos
+- `GET /api/categories` - Lista categorias
+- `POST /api/auth/login` - Login via API
+
+## 🚀 Deploy no Render
+
+### Configuração Simplificada
+1. **Serviço**: Web Service
+2. **Build Command**: `pip install -r backend/requirements.txt`
+3. **Start Command**: `cd backend && uvicorn server:app --host 0.0.0.0 --port $PORT`
+4. **Variáveis de ambiente**:
+   - `MONGO_URL` - URL do MongoDB Atlas
+   - `DB_NAME` - Nome do banco de dados
+   - `JWT_SECRET_KEY` - Chave secreta para JWT
+   - `JWT_ALGORITHM` - HS256
+   - `ACCESS_TOKEN_EXPIRE_MINUTES` - 1440
+   - `ADMIN_EMAIL` - Email do admin
+   - `ADMIN_PASSWORD` - Senha do admin
+
+### Cloudflare (opcional)
+- Use apenas como proxy DNS para o Render
+- Não precisa de Pages ou Workers
+- Benefícios: CDN, SSL, proteção DDoS
+
+## 📊 Tecnologias
 
 ### Backend
-- **Framework:** FastAPI (Python)
-- **Banco de Dados:** MongoDB
-- **Autenticação:** JWT com bcrypt
-- **Upload de Imagens:** Base64 encoding
+- **FastAPI** - Framework web Python
+- **Jinja2** - Templates HTML
+- **Motor** - Driver async MongoDB
+- **Python-Jose** - JWT
+- **Passlib** - Hash de senhas
 
-### Frontend
-- **Framework:** React 19
-- **Roteamento:** React Router DOM
-- **UI:** Tailwind CSS + shadcn/ui components
-- **Ícones:** Lucide React
-- **HTTP Client:** Axios
+### Frontend (via Templates)
+- **Tailwind CSS** (via CDN) - Estilização
+- **Lucide Icons** - Ícones SVG
+- **JavaScript Vanilla** - Interatividade
 
-## 📋 Como Usar
+### Banco de Dados
+- **MongoDB** - Armazenamento de dados
+- Imagens em **Base64** no MongoDB
 
-### 1. Acessar o Site
-- Acesse o site público em: `https://oriani-seo-boost.preview.emergentagent.com`
+## 📞 Informações de Contato
 
-### 2. Login Admin (Primeira Vez)
-- Acesse: `https://oriani-seo-boost.preview.emergentagent.com/login`
-- Clique em "Primeira vez? Criar conta admin"
-- **Email criado:** `admin@oriani.com.br`
-- **Senha criada:** `admin123`
+Atualize nos templates:
+- **Telefone**: Em `home.html`, `orcamento.html`
+- **Email**: Em `home.html`, `orcamento.html`
+- **WhatsApp**: Em `home.html`, `orcamento.html`, `service.html`
 
-### 3. Gerenciar Conteúdo
+## ✅ Funcionalidades Implementadas
 
-#### Criar Álbuns:
-1. No painel admin, clique em "Novo Álbum"
-2. Preencha nome, descrição e categoria
-3. Salve
-
-#### Upload de Fotos:
-1. Clique em "Upload de Foto"
-2. Selecione o álbum
-3. Adicione título e descrição
-4. Escolha a imagem
-5. Clique em "Upload"
-
-#### Organizar Portfólio:
-- Crie álbuns para cada tipo de serviço
-- Adicione fotos de qualidade dos trabalhos realizados
-- Use títulos descritivos para SEO
-
-## 🗂 Estrutura do Projeto
-
-```
-/app/
-├── backend/
-│   ├── server.py          # API FastAPI completa
-│   ├── requirements.txt   # Dependências Python
-│   └── .env              # Variáveis de ambiente
-│
-├── frontend/
-│   ├── src/
-│   │   ├── App.js        # Componente principal
-│   │   ├── pages/
-│   │   │   ├── Home.js    # Homepage
-│   │   │   ├── Gallery.js # Galeria
-│   │   │   ├── Login.js   # Login
-│   │   │   └── Admin.js   # Painel admin
-│   │   └── App.css
-│   │
-│   └── public/
-│       ├── assets/
-│       │   └── logo.png   # Logo Oriani
-│       ├── robots.txt     # SEO
-│       ├── sitemap.xml    # SEO
-│       └── index.html     # Meta tags SEO
-```
-
-## 📊 APIs Disponíveis
-
-### Públicas
-- `GET /api/` - Status da API
-- `GET /api/categories` - Lista de categorias
-- `GET /api/albums` - Lista todos os álbuns
-- `GET /api/photos` - Lista todas as fotos
-- `GET /api/photos?album_id={id}` - Fotos de um álbum específico
-
-### Autenticadas (requer JWT)
-- `POST /api/auth/register` - Criar admin
-- `POST /api/auth/login` - Login
-- `POST /api/albums` - Criar álbum
-- `PUT /api/albums/{id}` - Editar álbum
-- `DELETE /api/albums/{id}` - Excluir álbum
-- `POST /api/photos/upload` - Upload de foto
-- `PUT /api/photos/{id}` - Editar foto
-- `DELETE /api/photos/{id}` - Excluir foto
-
-## 🔐 Segurança
-- Senhas hash com bcrypt
-- Autenticação JWT
-- CORS configurado
-- Validação de dados com Pydantic
-
-## 📱 Responsividade
-- Design mobile-first
-- Breakpoints otimizados
-- Imagens responsivas
-- Menu adaptável
-
-## 🎯 Próximos Passos Recomendados
-
-### Para Produção no Netlify:
-1. **Build do Frontend:**
-   ```bash
-   cd frontend
-   yarn build
-   ```
-
-2. **Deploy no Netlify:**
-   - Conecte o repositório GitHub
-   - Build command: `cd frontend && yarn build`
-   - Publish directory: `frontend/build`
-   - Environment variables: `REACT_APP_BACKEND_URL`
-
-3. **Backend:**
-   - Deploy em serviço como Railway, Render ou Heroku
-   - Configure MongoDB Atlas (cloud)
-   - Atualize REACT_APP_BACKEND_URL com URL do backend em produção
-
-### Melhorias Futuras:
-- [ ] Integração com Google Analytics
-- [ ] Formulário de contato funcional com envio de email
-- [ ] Integração com WhatsApp Business
-- [ ] Sistema de agendamento online
-- [ ] Blog para conteúdo SEO
-- [ ] Otimização de imagens (WebP, lazy loading avançado)
-- [ ] PWA (Progressive Web App)
-
-## 📞 Informações de Contato (Atualize no código)
-- **Telefone:** (11) 99999-9999 → Atualize em `Home.js`
-- **Email:** contato@oriani.com.br → Atualize em `Home.js`
-- **Endereço:** São Paulo - SP → Atualize em `Home.js`
-
-## 🎉 Recursos Implementados
-- ✅ Design profissional e moderno
-- ✅ Sistema completo de gerenciamento
-- ✅ Autenticação segura
-- ✅ Upload de imagens
-- ✅ Galeria com lightbox
+- ✅ Site Python full-stack (FastAPI + Jinja2)
+- ✅ Design profissional com animações CSS
+- ✅ 6 categorias de serviço (incluindo Alvenaria e Drywall)
+- ✅ Sistema de álbuns e fotos
+- ✅ Área administrativa protegida
+- ✅ Galeria com filtros por categoria
+- ✅ Lightbox para visualização de fotos
+- ✅ Página de orçamento com WhatsApp
 - ✅ SEO otimizado
-- ✅ Responsivo
-- ✅ Structured data
-- ✅ Sitemap e robots.txt
-- ✅ Logo integrada
-- ✅ Cores da marca
-
-## 📈 Performance
-- Lazy loading de imagens
-- CSS otimizado com Tailwind
-- Código minificado em produção
-- API eficiente com MongoDB
+- ✅ 100% responsivo
 
 ---
 

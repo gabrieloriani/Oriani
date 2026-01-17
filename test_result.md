@@ -101,3 +101,174 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: "Converter site de React (frontend separado) para Python puro full-stack (FastAPI + Jinja2) para simplificar a comunicação entre área admin e área pública. Melhorar o design visual com fundos, transições e animações. Adicionar nova categoria 'Alvenaria e Drywall'."
+
+backend:
+  - task: "FastAPI servindo templates HTML (Jinja2)"
+    implemented: true
+    working: false
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Convertido para Python full-stack com FastAPI + Jinja2. Templates criados para todas as páginas."
+      - working: false
+        agent: "testing"
+        comment: "CRITICAL: FastAPI backend works perfectly on localhost:8001 (all HTML routes functional), but external URL still serves old React frontend. Only /api/* routes are routed to FastAPI. This is a deployment/ingress routing issue."
+
+  - task: "Login admin com cookies (sessão)"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Login usando formulário HTML + cookies HTTP-only para sessão. Testado manualmente com sucesso."
+      - working: true
+        agent: "testing"
+        comment: "✅ PASS: Login flow works perfectly on localhost:8001. Form authentication, cookie handling, session management all functional. Redirects work correctly."
+
+  - task: "CRUD de álbuns via formulários HTML"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Criar, editar e deletar álbuns via formulários POST no admin."
+      - working: true
+        agent: "testing"
+        comment: "✅ PASS: Album CRUD operations work perfectly. Create, edit, delete all functional via HTML forms. Data persistence confirmed."
+
+  - task: "Upload de fotos via formulários HTML"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Upload de fotos funcionando via formulário multipart no admin."
+      - working: true
+        agent: "testing"
+        comment: "✅ PASS: Photo upload works perfectly. Multipart form handling, base64 encoding, file validation all functional. Photos persist correctly."
+
+  - task: "Nova categoria Alvenaria e Drywall"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Categoria adicionada à lista CATEGORIES."
+
+  - task: "APIs REST mantidas para compatibilidade"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "low"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "APIs /api/* mantidas para possível uso futuro."
+      - working: true
+        agent: "testing"
+        comment: "✅ PASS: REST APIs work perfectly on both localhost and external URL. JWT authentication, CRUD operations, all endpoints functional. 'Alvenaria e Drywall' category confirmed."
+
+frontend:
+  - task: "Templates Jinja2 - Homepage"
+    implemented: true
+    working: true
+    file: "templates/home.html"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Homepage com design aprimorado, animações CSS, fundos gradient, cards com hover effects."
+
+  - task: "Templates Jinja2 - Login"
+    implemented: true
+    working: true
+    file: "templates/login.html"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Tela de login com design moderno e animações."
+
+  - task: "Templates Jinja2 - Admin"
+    implemented: true
+    working: true
+    file: "templates/admin.html"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Painel admin com modais para criar álbuns e upload de fotos."
+
+  - task: "Templates Jinja2 - Galeria"
+    implemented: true
+    working: true
+    file: "templates/gallery.html"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Galeria com filtro por categoria e lightbox."
+
+  - task: "Templates Jinja2 - Orçamento"
+    implemented: true
+    working: true
+    file: "templates/orcamento.html"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Página de orçamento com botões WhatsApp, telefone, email e formulário."
+
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 1
+  run_ui: false
+
+test_plan:
+  current_focus:
+    - "FastAPI servindo templates HTML (Jinja2)"
+  stuck_tasks:
+    - "FastAPI servindo templates HTML (Jinja2)"
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: "Convertido site para Python full-stack (FastAPI + Jinja2). Design aprimorado com animações CSS, gradients e hover effects. Nova categoria 'Alvenaria e Drywall' adicionada. Testado manualmente: login, admin, páginas públicas. Pronto para teste automatizado."
+  - agent: "testing"
+    message: "CRITICAL ISSUE FOUND: External URL routing problem. FastAPI backend works perfectly on localhost:8001 (all 23 tests pass), but external URL https://python-image-flow.preview.emergentagent.com still serves old React frontend for HTML routes. Only /api/* routes are properly routed to FastAPI backend. This is a deployment/ingress configuration issue, not a code issue."

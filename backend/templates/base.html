@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Oriani Multissoluções{% endblock %} | Marido de Aluguel SP</title>
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-1FPBJN0LQP"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-1FPBJN0LQP');
+    </script>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="{% block description %}Serviços profissionais de manutenção residencial e comercial em São Paulo. Elétrica, Hidráulica, Pintura, Montagem de Móveis, Instalações, Alvenaria e Drywall.{% endblock %}">
+    <meta name="keywords" content="marido de aluguel, eletricista, encanador, pintor, montagem de móveis, instalações, alvenaria, drywall, são paulo, sp">
+    <meta name="author" content="Oriani Multissoluções">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Oriani Multissoluções - Marido de Aluguel SP">
+    <meta property="og:description" content="Serviços profissionais de manutenção. Qualidade e confiança em cada trabalho.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://oriani.com.br">
+    <meta property="og:locale" content="pt_BR">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://oriani.com.br">
+    
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        orange: {
+                            50: '#fff7ed',
+                            100: '#ffedd5',
+                            200: '#fed7aa',
+                            300: '#fdba74',
+                            400: '#fb923c',
+                            500: '#FF8C42',
+                            600: '#ea580c',
+                            700: '#c2410c',
+                            800: '#9a3412',
+                            900: '#7c2d12',
+                        },
+                        navy: {
+                            500: '#1E3A5F',
+                            600: '#162d4a',
+                            700: '#0f2035',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="/static/css/styles.css">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    {% block head %}{% endblock %}
+</head>
+<body class="bg-gray-50 antialiased">
+    {% block content %}{% endblock %}
+    
+    <!-- Initialize Lucide Icons -->
+    <script>
+        lucide.createIcons();
+    </script>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>
