@@ -12,7 +12,7 @@ from PIL import Image
 import time
 
 # Configuration
-BASE_URL = "https://python-image-flow.preview.emergentagent.com"
+BASE_URL = "http://localhost:8001"
 ADMIN_EMAIL = "eletricista@oriani.com.br"
 ADMIN_PASSWORD = "15pras7Hora$"
 
