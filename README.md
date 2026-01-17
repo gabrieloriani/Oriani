@@ -80,10 +80,10 @@ Site profissional para serviços de Marido de Aluguel com sistema completo de ge
 ## 📋 Como Usar
 
 ### 1. Acessar o Site
-- Acesse o site público em: `https://media-gallery-85.preview.emergentagent.com`
+- Acesse o site público em: `https://python-image-flow.preview.emergentagent.com`
 
 ### 2. Login Admin (Primeira Vez)
-- Acesse: `https://media-gallery-85.preview.emergentagent.com/login`
+- Acesse: `https://python-image-flow.preview.emergentagent.com/login`
 - Clique em "Primeira vez? Criar conta admin"
 - **Email criado:** `admin@oriani.com.br`
 - **Senha criada:** `admin123`

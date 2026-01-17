@@ -3,10 +3,10 @@
 ## Acesso Rápido
 
 ### 🌐 Site Público
-**URL:** https://media-gallery-85.preview.emergentagent.com
+**URL:** https://python-image-flow.preview.emergentagent.com
 
 ### 🔐 Painel Admin
-**URL:** https://media-gallery-85.preview.emergentagent.com/login
+**URL:** https://python-image-flow.preview.emergentagent.com/login
 - **Email:** admin@oriani.com.br
 - **Senha:** admin123
 
