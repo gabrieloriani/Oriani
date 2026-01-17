@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block title %}Galeria{% if current_category %} - {{ current_category }}{% endif %}{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<header class="glass shadow-sm sticky top-0 z-40">
+    <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
+        <a href="/" class="flex items-center space-x-2">
+            <img src="/static/assets/logo.png" alt="Oriani Multissoluções" class="h-12">
+        </a>
+        <a href="/" class="text-gray-700 hover:text-orange-500 transition inline-flex items-center gap-2">
+            <i data-lucide="arrow-left" class="w-5 h-5"></i>
+            Voltar ao Início
+        </a>
+    </nav>
+</header>
+
+<!-- Gallery Content -->
+<div class="min-h-screen bg-pattern py-12">
+    <div class="container mx-auto px-4">
+        <!-- Title -->
+        <div class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                {% if current_category %}
+                Galeria - {{ current_category }}
+                {% else %}
+                Galeria Completa
+                {% endif %}
+            </h1>
+            <p class="text-gray-600 text-lg">Confira nossos trabalhos realizados com excelência</p>
+        </div>
+        
+        <!-- Category Filter -->
+        <div class="flex flex-wrap justify-center gap-3 mb-12">
+            <a href="/galeria" class="px-6 py-2.5 rounded-full transition font-medium {% if not current_category %}bg-orange-500 text-white shadow-lg{% else %}bg-white text-gray-700 hover:bg-orange-100 shadow{% endif %}">
+                Todas
+            </a>
+            {% for cat in categories %}
+            <a href="/galeria/{{ cat }}" class="px-6 py-2.5 rounded-full transition font-medium {% if current_category == cat %}bg-orange-500 text-white shadow-lg{% else %}bg-white text-gray-700 hover:bg-orange-100 shadow{% endif %}">
+                {{ cat }}
+            </a>
+            {% endfor %}
+        </div>
+        
+        <!-- Photos Grid -->
+        {% if photos %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {% for photo in photos %}
+            {% set album = albums | selectattr('id', 'equalto', photo.album_id) | first %}
+            <div class="bg-white rounded-xl overflow-hidden shadow-lg card-hover cursor-pointer group" onclick="openLightbox({{ loop.index0 }})">
+                <div class="img-zoom aspect-square">
+                    <img src="{{ photo.image_data }}" alt="{{ photo.title }}" class="w-full h-full object-cover" loading="lazy">
+                </div>
+                <div class="p-4">
+                    <h3 class="font-semibold text-gray-900 mb-2">{{ photo.title }}</h3>
+                    {% if album %}
+                    <span class="inline-block bg-orange-100 text-orange-700 text-xs px-3 py-1 rounded-full font-medium">
+                        {{ album.category }}
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-20 bg-white rounded-2xl shadow">
+            <i data-lucide="image" class="w-20 h-20 text-gray-300 mx-auto mb-4"></i>
+            <p class="text-gray-500 text-xl mb-4">Nenhuma foto encontrada nesta categoria.</p>
+            <a href="/galeria" class="text-orange-500 hover:text-orange-600 font-semibold inline-flex items-center gap-2">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                Ver todas as fotos
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Lightbox -->
+<div id="lightbox" class="lightbox">
+    <button class="absolute top-4 right-4 text-white hover:text-orange-500 transition z-10" onclick="closeLightbox()">
+        <i data-lucide="x" class="w-8 h-8"></i>
+    </button>
+    <button class="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:text-orange-500 transition z-10 p-2 bg-black/30 rounded-full" onclick="event.stopPropagation(); prevPhoto()">
+        <i data-lucide="chevron-left" class="w-8 h-8"></i>
+    </button>
+    <button class="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:text-orange-500 transition z-10 p-2 bg-black/30 rounded-full" onclick="event.stopPropagation(); nextPhoto()">
+        <i data-lucide="chevron-right" class="w-8 h-8"></i>
+    </button>
+    <div class="max-w-5xl max-h-[90vh] p-4" onclick="event.stopPropagation()">
+        <img id="lightbox-img" src="" alt="" class="max-w-full max-h-[80vh] object-contain mx-auto rounded-lg shadow-2xl">
+        <div class="text-white text-center mt-4">
+            <h3 id="lightbox-title" class="text-xl font-bold"></h3>
+            <p id="lightbox-desc" class="text-gray-300 mt-2"></p>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer class="bg-gray-900 text-white py-8">
+    <div class="container mx-auto px-4 text-center">
+        <p class="text-gray-400">&copy; 2025 Oriani Multissoluções. Todos os direitos reservados.</p>
+    </div>
+</footer>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const photos = [
+        {% for photo in photos %}
+        {
+            src: "{{ photo.image_data }}",
+            title: "{{ photo.title }}",
+            description: "{{ photo.description or '' }}"
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ];
+    
+    let currentIndex = 0;
+    
+    function openLightbox(index) {
+        currentIndex = index;
+        updateLightbox();
+        document.getElementById('lightbox').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeLightbox() {
+        document.getElementById('lightbox').classList.remove('active');
+        document.body.style.overflow = '';
+    }
+    
+    function updateLightbox() {
+        const photo = photos[currentIndex];
+        document.getElementById('lightbox-img').src = photo.src;
+        document.getElementById('lightbox-title').textContent = photo.title;
+        document.getElementById('lightbox-desc').textContent = photo.description;
+    }
+    
+    function nextPhoto() {
+        currentIndex = (currentIndex + 1) % photos.length;
+        updateLightbox();
+    }
+    
+    function prevPhoto() {
+        currentIndex = (currentIndex - 1 + photos.length) % photos.length;
+        updateLightbox();
+    }
+    
+    document.getElementById('lightbox').addEventListener('click', closeLightbox);
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeLightbox();
+        if (e.key === 'ArrowRight') nextPhoto();
+        if (e.key === 'ArrowLeft') prevPhoto();
+    });
+</script>
+{% endblock %}
