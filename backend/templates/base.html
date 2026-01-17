@@ -5,6 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Oriani Multissoluções{% endblock %} | Marido de Aluguel SP</title>
     
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-1FPBJN0LQP"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-1FPBJN0LQP');
+    </script>
+    
     <!-- SEO Meta Tags -->
     <meta name="description" content="{% block description %}Serviços profissionais de manutenção residencial e comercial em São Paulo. Elétrica, Hidráulica, Pintura, Montagem de Móveis, Instalações, Alvenaria e Drywall.{% endblock %}">
     <meta name="keywords" content="marido de aluguel, eletricista, encanador, pintor, montagem de móveis, instalações, alvenaria, drywall, são paulo, sp">
@@ -15,7 +24,11 @@
     <meta property="og:title" content="Oriani Multissoluções - Marido de Aluguel SP">
     <meta property="og:description" content="Serviços profissionais de manutenção. Qualidade e confiança em cada trabalho.">
     <meta property="og:type" content="website">
+    <meta property="og:url" content="https://oriani.com.br">
     <meta property="og:locale" content="pt_BR">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://oriani.com.br">
     
     <!-- Tailwind CSS via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
