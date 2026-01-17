@@ -126,11 +126,14 @@ backend:
     file: "server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "Login usando formulário HTML + cookies HTTP-only para sessão. Testado manualmente com sucesso."
+      - working: true
+        agent: "testing"
+        comment: "✅ PASS: Login flow works perfectly on localhost:8001. Form authentication, cookie handling, session management all functional. Redirects work correctly."
 
   - task: "CRUD de álbuns via formulários HTML"
     implemented: true
