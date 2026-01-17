@@ -256,3 +256,5 @@ test_plan:
 agent_communication:
   - agent: "main"
     message: "Convertido site para Python full-stack (FastAPI + Jinja2). Design aprimorado com animações CSS, gradients e hover effects. Nova categoria 'Alvenaria e Drywall' adicionada. Testado manualmente: login, admin, páginas públicas. Pronto para teste automatizado."
+  - agent: "testing"
+    message: "CRITICAL ISSUE FOUND: External URL routing problem. FastAPI backend works perfectly on localhost:8001 (all 23 tests pass), but external URL https://python-image-flow.preview.emergentagent.com still serves old React frontend for HTML routes. Only /api/* routes are properly routed to FastAPI backend. This is a deployment/ingress configuration issue, not a code issue."
