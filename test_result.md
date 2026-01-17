@@ -183,11 +183,14 @@ backend:
     file: "server.py"
     stuck_count: 0
     priority: "low"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "APIs /api/* mantidas para possível uso futuro."
+      - working: true
+        agent: "testing"
+        comment: "✅ PASS: REST APIs work perfectly on both localhost and external URL. JWT authentication, CRUD operations, all endpoints functional. 'Alvenaria e Drywall' category confirmed."
 
 frontend:
   - task: "Templates Jinja2 - Homepage"
