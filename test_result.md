@@ -107,15 +107,18 @@ user_problem_statement: "Converter site de React (frontend separado) para Python
 backend:
   - task: "FastAPI servindo templates HTML (Jinja2)"
     implemented: true
-    working: true
+    working: false
     file: "server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "Convertido para Python full-stack com FastAPI + Jinja2. Templates criados para todas as páginas."
+      - working: false
+        agent: "testing"
+        comment: "CRITICAL: FastAPI backend works perfectly on localhost:8001 (all HTML routes functional), but external URL still serves old React frontend. Only /api/* routes are routed to FastAPI. This is a deployment/ingress routing issue."
 
   - task: "Login admin com cookies (sessão)"
     implemented: true
