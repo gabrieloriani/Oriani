@@ -261,10 +261,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Login admin com cookies"
-    - "CRUD de álbuns via formulários HTML"
-    - "Upload de fotos via formulários HTML"
-  stuck_tasks: []
+    - "FastAPI servindo templates HTML (Jinja2)"
+  stuck_tasks:
+    - "FastAPI servindo templates HTML (Jinja2)"
   test_all: false
   test_priority: "high_first"
 
