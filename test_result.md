@@ -156,11 +156,14 @@ backend:
     file: "server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "Upload de fotos funcionando via formulário multipart no admin."
+      - working: true
+        agent: "testing"
+        comment: "✅ PASS: Photo upload works perfectly. Multipart form handling, base64 encoding, file validation all functional. Photos persist correctly."
 
   - task: "Nova categoria Alvenaria e Drywall"
     implemented: true
